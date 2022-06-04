@@ -15,7 +15,7 @@ class Block {
         this.prescriptions = prescriptions;
         this.previousHash = previousHash;
         this.hash = this.caculateHash();
-        this.nonce = 0; //Incremental number for generating new hashes withou changing data
+        this.nonce = 0; //Incremental number for generating new hashes without changing data
 
     }
 
@@ -90,12 +90,13 @@ class BlockChain {
     */
 
     isChainValid() {
-        let i = this.chain.length - 1
+        
 
-        for (i; i > 1; i--) {
+        for (let i = 1; i < this.chain.length; i++) {
             const currentBlock = this.chain[i];
             const previousBlock = this.chain[i - 1];
-
+            console.log(currentBlock.hash)
+            console.log(currentBlock.caculateHash())
             if (currentBlock.hash !== currentBlock.caculateHash()) {
                 console.log("\n Invalid hash: " + currentBlock.caculateHash() + "\n Correct hash: " + currentBlock.hash)
                 return false
@@ -125,6 +126,11 @@ console.log("\n")
 
 console.log(blockchain)
 console.log(blockchain.getUserPrescriptions("patienceKey1"))
+
+console.log(blockchain.isChainValid())
+blockchain.chain[1].prescriptions.push(new Prescription("dk1", "pk1", "cocaina 5kg"))
+console.log(blockchain.getUserPrescriptions("patienceKey1"))
+console.log(blockchain.isChainValid())
 
 // for (const blocks of blockchain.chain) {
 //     console.log(blocks.prescriptions.prescriptionData)
