@@ -11,29 +11,55 @@ import { Prescription } from './model/Prescription';
 export class AppService {
   private blockChain: BlockChain = new BlockChain();
 
+  // TO CHAIN
   getLenth(): number {
     return this.blockChain.getLenth();
-  }
-
-  ListToMine(): Prescription[] {
-    return this.blockChain.getAllPendingBlocks();
   }
 
   getChain(): Block[] {
     return this.blockChain.getChain();
   }
 
-  verifyListToMine(): string {
-    return 'Pending to validate: ' + this.blockChain.getPendingChainLenth();
+  ListToMine(): Prescription[] {
+    return this.blockChain.getAllPendingBlocks();
   }
 
-  mineBlock(id: string): string {
-    if (this.blockChain.getPendingChainLenth() <= 0) {
-      return 'there is no block to mine';
+
+  //TO CLIENT
+  listUserPrescriptions(clientKey: string): string[] {
+    const validationMessage: string[] = [];
+    validationMessage.push(this.blockChain.isChainValid());
+    // console.log(validationMessage);
+    if (validationMessage[0] != 'valid') {
+      return validationMessage;
+    } else {
+      return this.blockChain.getUserPrescriptions(clientKey);
     }
-    const hash = this.blockChain.mineLastPendingPrescription();
-    return 'Miner: ' + id + ' mined the block with hash: ' + hash;
   }
+
+  generateClientKey(): string {
+    var ecc = new ec('curve25519');
+    var keyPrivate = ecc.genKeyPair().getPrivate().toString();
+    var keyPublicInHex = ecc.genKeyPair().getPublic("hex");
+    // console.log('Generated private client key: ' + keyPrivate);
+    // console.log('Generated public client key: ' + keyPublicInHex);
+    
+    return keyPrivate + " :: " + keyPublicInHex;
+  }
+
+  addBlockToValidation(prescriptionDto: CreatePresciptionDto): string {
+    const prescription = new Prescription(
+      prescriptionDto.doctorPublicKey,
+      prescriptionDto.patiencePublicKey,
+      prescriptionDto.prescriptionData,
+      new Date(prescriptionDto.expirationDate)
+    );
+    return this.blockChain.createPrescription(prescription);
+  }
+
+
+
+  //TO MINER
 
   mineAllBlock(id: string): string {
     if (this.blockChain.getPendingChainLenth() <= 0) {
@@ -47,33 +73,17 @@ export class AppService {
     );
   }
 
-  addBlockToValidation(prescriptionDto: CreatePresciptionDto): string {
-    const prescription = new Prescription(
-      prescriptionDto.doctorPublicKey,
-      prescriptionDto.patiencePublicKey,
-      prescriptionDto.prescriptionData,
-    );
-    return this.blockChain.createPrescription(prescription);
-  }
-
-  generateClientKey(): string {
-    var ecc = new ec('curve25519');
-    var key1 = ecc.genKeyPair().getPrivate().toString();
-    console.log('Generated client key: ' + key1);
-    return key1;
-  }
-
-  listUserPrescriptions(clientKey: string): string[] {
-    const validationMessage: string[] = [];
-    validationMessage.push(this.blockChain.isChainValid());
-    console.log(validationMessage);
-    if (validationMessage[0] != 'valid') {
-      return validationMessage;
-    } else {
-      return this.blockChain.getUserPrescriptions(clientKey);
+  mineBlock(id: string): string {
+    if (this.blockChain.getPendingChainLenth() <= 0) {
+      return 'there is no block to mine';
     }
+    const hash = this.blockChain.mineLastPendingPrescription();
+    return 'Miner: ' + id + ' mined the block with hash: ' + hash;
   }
 
+  verifyListToMine(): string {
+    return 'Pending to validate: ' + this.blockChain.getPendingChainLenth();
+  }
   // updateUserPrescriptions({
   //   patiencePublicKey,
   //   doctorPublicKey,

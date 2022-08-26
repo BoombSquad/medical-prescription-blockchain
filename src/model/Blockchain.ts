@@ -21,7 +21,7 @@ export class BlockChain {
   createGenesisBlock() {
     return new Block(
       Date.now().toString(),
-      new Prescription(null, null, null),
+      new Prescription(null, null, null, null),
       '0',
     );
   }
@@ -40,8 +40,8 @@ export class BlockChain {
 
   createPrescription(createPrescription: Prescription) {
     this.pendingPrescription.push(createPrescription);
-    console.log('\n This prescription has been added : \n');
-    console.log(this.pendingPrescription);
+    // console.log('\n This prescription has been added : \n');
+    // console.log(this.pendingPrescription);
     return 'success';
   }
 
@@ -54,14 +54,14 @@ export class BlockChain {
         this.pendingPrescription[i],
         this.getLastBlock().getHash(),
       );
-      console.log(this.difficulty);
+      // console.log(this.difficulty);
       block.mineBlock(this.difficulty);
-      console.log(block.getHash());
+      // console.log(block.getHash());
       this.chain.push(block);
       this.difficulty++;
     }
 
-    console.log('All Prescriptions validated' + '\n');
+    // console.log('All Prescriptions validated' + '\n');
 
     this.pendingPrescription = [
       //can add reward transaction;
@@ -81,7 +81,7 @@ export class BlockChain {
       this.chain.push(block);
       this.difficulty++;
 
-      console.log('Prescription validated' + '\n');
+      // console.log('Prescription validated' + '\n');
 
       return block.getHash();
     }
@@ -94,13 +94,15 @@ export class BlockChain {
     for (const blocks of this.chain) {
       if (blocks.getPrescriptions() != null) {
         if (blocks.getPrescriptions().verifyClientKey(clientKey)) {
-          userMeds.push(
-            'Prescription ' +
-              index +
-              ' ' +
-              blocks.getPrescriptions().getPatienceData(),
-          );
-          index++;
+          if(blocks.getPrescriptions().verifyPrescriptionExpiration()){
+            userMeds.push(
+              'Prescription ' +
+                index +
+                ' ' +
+                blocks.getPrescriptions().getPatienceData(),
+            );
+            index++;
+          }
         }
       }
     }

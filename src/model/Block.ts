@@ -33,7 +33,7 @@ export class Block {
       // console.log("Mining block...: " + this.hash) //For understanding the calculation
       this.hash = this.caculateHash();
     }
-    console.log('Block mined: ' +this.hash +'\n' +'With nonce of : ' +this.nonce +'\n');
+    // console.log('Block mined: ' +this.hash +'\n' +'With nonce of : ' +this.nonce +'\n');
   }
 
   public getPreviousHash(): string{
