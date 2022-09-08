@@ -21,7 +21,7 @@ export class BlockChain {
   createGenesisBlock() {
     return new Block(
       Date.now().toString(),
-      new Prescription(null, null, null, null),
+      new Prescription(null, null, null, null, null),
       '0',
     );
   }
@@ -40,8 +40,6 @@ export class BlockChain {
 
   createPrescription(createPrescription: Prescription) {
     this.pendingPrescription.push(createPrescription);
-    // console.log('\n This prescription has been added : \n');
-    // console.log(this.pendingPrescription);
     return 'success';
   }
 
@@ -66,7 +64,7 @@ export class BlockChain {
     this.pendingPrescription = [
       //can add reward transaction;
     ];
-    return 'total of ' + i + 'Blocks';
+    return 'total of ' + i + ' Blocks';
   }
 
   mineLastPendingPrescription(): string {
@@ -88,25 +86,25 @@ export class BlockChain {
     return 'there are no blocks to mine';
   }
 
-  getUserPrescriptions(clientKey: string): string[] {
-    const userMeds: string[] = [];
+  getUserPrescriptions(clientKey: string):  object[] {
     let index = 1;
+    var array: object[] = [];
     for (const blocks of this.chain) {
       if (blocks.getPrescriptions() != null) {
         if (blocks.getPrescriptions().verifyClientKey(clientKey)) {
           if(blocks.getPrescriptions().verifyPrescriptionExpiration()){
-            userMeds.push(
-              'Prescription ' +
-                index +
-                ' ' +
-                blocks.getPrescriptions().getPatienceData(),
-            );
+            var data = {
+              id: index,
+              prescription: blocks.getPrescriptions().getPatienceData(),
+              hash: blocks.getPrescriptions().getPrescriptionHash()
+            }
+            array.push(data)
             index++;
           }
         }
       }
     }
-    return userMeds;
+    return array;
   }
 
   isChainValid(): string {

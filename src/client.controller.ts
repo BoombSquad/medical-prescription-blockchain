@@ -13,6 +13,7 @@ export class ClientController {
 
   @Get('getKey')
   async getKey(): Promise<{ message: string }> {
+    
     return { message: await this.appService.generateClientKey() };
   }
 
@@ -20,6 +21,7 @@ export class ClientController {
   async addBlockToValidation(
     @Body() prescriptionDto: CreatePresciptionDto,
   ): Promise<{ message: string }> {
+    console.log(prescriptionDto)
     return {
       message: await this.appService.addBlockToValidation(prescriptionDto),
     };
@@ -28,9 +30,13 @@ export class ClientController {
   @Get('prescription/:id/list')
   async getUserPrescriptions(
     @Param('id') id: string,
-  ): Promise<{ message: string[] }> {
-    return {
-      message: await this.appService.listUserPrescriptions(id),
-    };
+  ): Promise<object[]> {
+    return await this.appService.listUserPrescriptions(id);
+  }
+
+  @Get(':key/:prescription')
+  async getPrescriptionsHash(@Param('key') key: string, @Param('prescription') prescription: string
+  ): Promise<{message: string}> {
+    return {message: await this.appService.getPrescriptionHash(key, prescription)};
   }
 }

@@ -3,18 +3,21 @@ export class Prescription {
   private doctorPublicKey: string;
   private patiencePublicKey: string;
   private prescriptionData: string;
+  private prescriptionHash: string;
   private creationDate: Date;
   private expirationDate: Date;
 
   constructor(
     doctorPublicKey: string,
     patiencePublicKey: string,
-    prescription: string,
+    prescriptionData: string,
+    prescriptionHash: string,
     expirationDate: Date,
   ) {
     this.doctorPublicKey = doctorPublicKey;
     this.patiencePublicKey = patiencePublicKey;
-    this.prescriptionData = prescription;
+    this.prescriptionData = prescriptionData;
+    this.prescriptionHash = prescriptionHash;
     this.creationDate = new Date();
     this.expirationDate = expirationDate;
 
@@ -33,6 +36,10 @@ export class Prescription {
 
   getPatienceData(): string {
     return this.prescriptionData;
+  }
+
+  getPrescriptionHash(): string {
+    return this.prescriptionHash;
   }
 
   updatePatienceData(

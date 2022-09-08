@@ -1,14 +1,18 @@
 /* eslint-disable no-var */
 import { Injectable } from '@nestjs/common';
-import { ec } from 'elliptic';
+import { SHA512 } from 'crypto-js';
 import { Block } from './model/Block';
 import { BlockChain } from './model/Blockchain';
 import { CreatePresciptionDto } from './model/dto/createPrescriptionDto';
-import { UpdatePresciptionDto } from './model/dto/updatePrescriptionDto';
 import { Prescription } from './model/Prescription';
+import * as ecc from 'encryptoo';
 
 @Injectable()
 export class AppService {
+  getPrescriptionHash(key: string, prescription: string): string {
+    const hash = SHA512(key + ":" + prescription).toString();
+    return hash
+  }
   private blockChain: BlockChain = new BlockChain();
 
   // TO CHAIN
@@ -26,34 +30,35 @@ export class AppService {
 
 
   //TO CLIENT
-  listUserPrescriptions(clientKey: string): string[] {
+  listUserPrescriptions(clientKey: string): object[] {
     const validationMessage: string[] = [];
     validationMessage.push(this.blockChain.isChainValid());
     // console.log(validationMessage);
     if (validationMessage[0] != 'valid') {
-      return validationMessage;
+     
+      return [{message: "Block isnt valid"}];
     } else {
       return this.blockChain.getUserPrescriptions(clientKey);
     }
   }
 
   generateClientKey(): string {
-    var ecc = new ec('curve25519');
-    var keyPrivate = ecc.genKeyPair().getPrivate().toString();
-    var keyPublicInHex = ecc.genKeyPair().getPublic("hex");
-    // console.log('Generated private client key: ' + keyPrivate);
-    // console.log('Generated public client key: ' + keyPublicInHex);
-    
-    return keyPrivate + " :: " + keyPublicInHex;
+    const publicKey = ecc.init();
+    const secret = ecc.getSecret(publicKey);
+    var userPublicKey = SHA512(secret)
+    return secret + " :::::: " + userPublicKey;
   }
 
   addBlockToValidation(prescriptionDto: CreatePresciptionDto): string {
+
     const prescription = new Prescription(
       prescriptionDto.doctorPublicKey,
       prescriptionDto.patiencePublicKey,
       prescriptionDto.prescriptionData,
+      prescriptionDto.prescriptionHash,
       new Date(prescriptionDto.expirationDate)
     );
+
     return this.blockChain.createPrescription(prescription);
   }
 
