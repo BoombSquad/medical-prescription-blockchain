@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreatePresciptionDto } from './model/dto/createPrescriptionDto';
+import { KeyPairObjectDto } from './model/dto/KeyPairObjectDto';
 
 @Controller('client')
 export class ClientController {
@@ -12,11 +13,10 @@ export class ClientController {
   }
 
   @Get('getKey')
-  async getKey(): Promise<{ message: string }> {
+  async getKey(): Promise<{ message: KeyPairObjectDto }> {
     
     return { message: await this.appService.generateClientKey() };
   }
-
   @Post()
   async addBlockToValidation(
     @Body() prescriptionDto: CreatePresciptionDto,

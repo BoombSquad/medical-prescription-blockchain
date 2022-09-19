@@ -5,7 +5,8 @@ import { Block } from './model/Block';
 import { BlockChain } from './model/Blockchain';
 import { CreatePresciptionDto } from './model/dto/createPrescriptionDto';
 import { Prescription } from './model/Prescription';
-import * as ecc from 'encryptoo';
+import {generateKeyPairSync, KeyObject, RSAKeyPairOptions } from 'crypto'
+import { KeyPairObjectDto } from './model/dto/KeyPairObjectDto';
 
 @Injectable()
 export class AppService {
@@ -42,11 +43,21 @@ export class AppService {
     }
   }
 
-  generateClientKey(): string {
-    const publicKey = ecc.init();
-    const secret = ecc.getSecret(publicKey);
-    var userPublicKey = SHA512(secret)
-    return secret + " :::::: " + userPublicKey;
+  generateClientKey(): KeyPairObjectDto {
+    
+    const rsaParams = {
+      modulusLength: 2048,
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem',
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem',
+      },
+    };
+    var {privateKey, publicKey } = generateKeyPairSync('rsa', rsaParams);
+    return new KeyPairObjectDto(privateKey.toString(), publicKey.toString());
   }
 
   addBlockToValidation(prescriptionDto: CreatePresciptionDto): string {
