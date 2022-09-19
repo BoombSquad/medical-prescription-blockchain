@@ -1,79 +1,52 @@
-/* eslint-disable no-var */
 import { Injectable } from '@nestjs/common';
-import { SHA512 } from 'crypto-js';
+
+import base64url from 'base64url';
+import { generateKeyPairSync, privateDecrypt } from 'crypto';
+
 import { Block } from './model/Block';
 import { BlockChain } from './model/Blockchain';
-import { CreatePresciptionDto } from './model/dto/createPrescriptionDto';
 import { Prescription } from './model/Prescription';
-import {generateKeyPairSync, KeyObject, RSAKeyPairOptions } from 'crypto'
+
+import { CreatePresciptionDto } from './model/dto/createPrescriptionDto';
 import { KeyPairObjectDto } from './model/dto/KeyPairObjectDto';
 
 @Injectable()
 export class AppService {
-  getPrescriptionHash(key: string, prescription: string): string {
-    const hash = SHA512(key + ":" + prescription).toString();
-    return hash
-  }
   private blockChain: BlockChain = new BlockChain();
 
   // TO CHAIN
   getLenth(): number {
     return this.blockChain.getLenth();
   }
-
   getChain(): Block[] {
     return this.blockChain.getChain();
   }
-
   ListToMine(): Prescription[] {
     return this.blockChain.getAllPendingBlocks();
   }
 
-
   //TO CLIENT
-  listUserPrescriptions(clientKey: string): object[] {
+  listUserPrescriptions(clientBase64Key: string): object[] {
     const validationMessage: string[] = [];
     validationMessage.push(this.blockChain.isChainValid());
     // console.log(validationMessage);
     if (validationMessage[0] != 'valid') {
-     
-      return [{message: "Block isnt valid"}];
+      return [{ message: 'Block isnt valid' }];
     } else {
-      return this.blockChain.getUserPrescriptions(clientKey);
+      return this.blockChain.getUserPrescriptions(clientBase64Key);
     }
   }
 
-  generateClientKey(): KeyPairObjectDto {
-    
-    const rsaParams = {
-      modulusLength: 2048,
-      publicKeyEncoding: {
-        type: 'spki',
-        format: 'pem',
-      },
-      privateKeyEncoding: {
-        type: 'pkcs8',
-        format: 'pem',
-      },
-    };
-    var {privateKey, publicKey } = generateKeyPairSync('rsa', rsaParams);
-    return new KeyPairObjectDto(privateKey.toString(), publicKey.toString());
-  }
-
   addBlockToValidation(prescriptionDto: CreatePresciptionDto): string {
-
     const prescription = new Prescription(
       prescriptionDto.doctorPublicKey,
       prescriptionDto.patiencePublicKey,
       prescriptionDto.prescriptionData,
-      prescriptionDto.prescriptionHash,
-      new Date(prescriptionDto.expirationDate)
+      new Date(prescriptionDto.expirationDate),
     );
 
     return this.blockChain.createPrescription(prescription);
   }
-
-
 
   //TO MINER
 
@@ -100,19 +73,31 @@ export class AppService {
   verifyListToMine(): string {
     return 'Pending to validate: ' + this.blockChain.getPendingChainLenth();
   }
-  // updateUserPrescriptions({
-  //   patiencePublicKey,
-  //   doctorPublicKey,
-  //   prescriptionId,
-  //   newPrescriptionData,
-  // }: UpdatePresciptionDto): string {
-  //   this.blockChain.updateUserPrescriptions(
-  //     patiencePublicKey,
-  //     doctorPublicKey,
-  //     prescriptionId,
-  //     newPrescriptionData,
-  //   );
 
-  //   return '';
-  // }
+  //TO USE ON FRONT
+  validatePrescription(
+    base64UrlClientKey: string,
+    prescriptionHex: string,
+  ): string | PromiseLike<string> {
+    const clientKey = base64url.decode(base64UrlClientKey, 'utf8');
+    const buf = Buffer.from(prescriptionHex, 'hex');
+    const decrypted = privateDecrypt(clientKey, buf);
+    return decrypted.toString();
+  }
+
+  generateClientKey(): KeyPairObjectDto {
+    const rsaParams = {
+      modulusLength: 2048,
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem',
+      },
+      privateKeyEncoding: {
+        type: 'pkcs1',
+        format: 'pem',
+      },
+    };
+    const { privateKey, publicKey } = generateKeyPairSync('rsa', rsaParams);
+    return new KeyPairObjectDto(privateKey.toString(), publicKey.toString());
+  }
 }

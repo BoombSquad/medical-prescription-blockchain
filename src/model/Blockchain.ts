@@ -1,3 +1,5 @@
+import base64url from 'base64url';
+import { publicEncrypt } from 'crypto';
 import { Block } from './Block';
 import { Prescription } from './Prescription';
 
@@ -21,7 +23,7 @@ export class BlockChain {
   createGenesisBlock() {
     return new Block(
       Date.now().toString(),
-      new Prescription(null, null, null, null, null),
+      new Prescription(null, null, null, null),
       '0',
     );
   }
@@ -86,19 +88,22 @@ export class BlockChain {
     return 'there are no blocks to mine';
   }
 
-  getUserPrescriptions(clientKey: string):  object[] {
+  getUserPrescriptions(clientKey: string): object[] {
     let index = 1;
-    var array: object[] = [];
+    const array: object[] = [];
     for (const blocks of this.chain) {
       if (blocks.getPrescriptions() != null) {
         if (blocks.getPrescriptions().verifyClientKey(clientKey)) {
-          if(blocks.getPrescriptions().verifyPrescriptionExpiration()){
-            var data = {
+          if (blocks.getPrescriptions().verifyPrescriptionExpiration()) {
+            const data = {
               id: index,
               prescription: blocks.getPrescriptions().getPatienceData(),
-              hash: blocks.getPrescriptions().getPrescriptionHash()
-            }
-            array.push(data)
+              signature: encryptPrescription(
+                blocks.getPrescriptions().getPublicKey(),
+                blocks.getPrescriptions().getPatienceData(),
+              ),
+            };
+            array.push(data);
             index++;
           }
         }
@@ -136,18 +141,13 @@ export class BlockChain {
   getLenth(): number {
     return this.chain.length;
   }
-
-  // updateUserPrescriptions(
-  //   clientKey: string,
-  //   doctorKey: string,
-  //   blockChainIndex: number,
-  //   newPrescription: string,
-  // ): string {
-  //   const block = this.chain[blockChainIndex];
-  //   if (block != null && block.getPrescriptions().verifyClientKey(clientKey)) {
-  //     return block
-  //       .getPrescriptions()
-  //       .updatePatienceData(clientKey, doctorKey, newPrescription);
-  //   }
-  // }
+}
+function encryptPrescription(
+  base64UrlPublicKey: string,
+  prescription: string,
+): string {
+  const clientKey = base64url.decode(base64UrlPublicKey, 'utf8');
+  const plaintext = Buffer.from(prescription, 'utf8');
+  const encryptedPrescription = publicEncrypt(clientKey, plaintext);
+  return encryptedPrescription.toString('hex');
 }

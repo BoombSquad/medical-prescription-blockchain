@@ -1,9 +1,8 @@
 export class Prescription {
-  
   private doctorPublicKey: string;
   private patiencePublicKey: string;
   private prescriptionData: string;
-  private prescriptionHash: string;
+  private prescriptionSignature: string;
   private creationDate: Date;
   private expirationDate: Date;
 
@@ -11,55 +10,29 @@ export class Prescription {
     doctorPublicKey: string,
     patiencePublicKey: string,
     prescriptionData: string,
-    prescriptionHash: string,
     expirationDate: Date,
   ) {
     this.doctorPublicKey = doctorPublicKey;
     this.patiencePublicKey = patiencePublicKey;
     this.prescriptionData = prescriptionData;
-    this.prescriptionHash = prescriptionHash;
     this.creationDate = new Date();
     this.expirationDate = expirationDate;
-
   }
 
   verifyClientKey(patienceKey: string): boolean {
     return this.patiencePublicKey === patienceKey;
   }
 
-  verifyKeyPair(patienceKey: string, doctorKey: string): boolean {
-    return (
-      this.patiencePublicKey === patienceKey &&
-      this.doctorPublicKey === doctorKey
-    );
-  }
-
   getPatienceData(): string {
     return this.prescriptionData;
   }
-
-  getPrescriptionHash(): string {
-    return this.prescriptionHash;
-  }
-
-  updatePatienceData(
-    patienceKey: string,
-    doctorKey: string,
-    newPrescription: string,
-  ): string {
-    if (!this.verifyKeyPair(patienceKey, doctorKey)) {
-      return 'Invalid transaction';
-    } else {
-      this.prescriptionData = newPrescription;
-      return 'Successfully updated';
-    }
+  getPublicKey(): string {
+    return this.patiencePublicKey;
   }
 
   verifyPrescriptionExpiration() {
-    
-    if(new Date() > this.expirationDate){
+    if (new Date() > this.expirationDate) {
       return false;
-    }
-    else return true;
+    } else return true;
   }
 }

@@ -1,13 +1,11 @@
-export class KeyPairObjectDto{
-    t1: string;
-    t2: string;
+import base64url from 'base64url';
 
-    constructor(privateKey: string, publicKey: string){
-        privateKey = privateKey.split('\n').join('');
-        publicKey = publicKey.split('\n').join('');
-        this.t1 = privateKey.replace('-----BEGIN PRIVATE KEY-----','').replace('-----END PRIVATE KEY-----','');
-        this.t2 = publicKey.replace('-----BEGIN PUBLIC KEY-----','').replace('-----END PUBLIC KEY-----','');
-    }
+export class KeyPairObjectDto {
+  t1: string;
+  t2: string;
+
+  constructor(privateKey: string, publicKey: string) {
+    this.t1 = base64url.encode(privateKey, 'utf8');
+    this.t2 = base64url.encode(publicKey, 'utf8');
+  }
 }
-
-//.replace('\n','').replaceAll('\r','')

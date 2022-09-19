@@ -14,29 +14,48 @@ export class ClientController {
 
   @Get('getKey')
   async getKey(): Promise<{ message: KeyPairObjectDto }> {
-    
-    return { message: await this.appService.generateClientKey() };
+    return { message: this.appService.generateClientKey() };
   }
+
   @Post()
   async addBlockToValidation(
     @Body() prescriptionDto: CreatePresciptionDto,
   ): Promise<{ message: string }> {
-    console.log(prescriptionDto)
     return {
-      message: await this.appService.addBlockToValidation(prescriptionDto),
+      message: this.appService.addBlockToValidation(prescriptionDto),
     };
   }
 
-  @Get('prescription/:id/list')
+  @Get('prescription/:key/list')
   async getUserPrescriptions(
-    @Param('id') id: string,
+    @Param('key') base64UrlKey: string,
   ): Promise<object[]> {
-    return await this.appService.listUserPrescriptions(id);
+    return this.appService.listUserPrescriptions(base64UrlKey);
   }
 
-  @Get(':key/:prescription')
-  async getPrescriptionsHash(@Param('key') key: string, @Param('prescription') prescription: string
-  ): Promise<{message: string}> {
-    return {message: await this.appService.getPrescriptionHash(key, prescription)};
+  // @Get('sign/:key/:prescription')
+  // async signPrescription(
+  //   @Param('key') base64UrlKey: string,
+  //   @Param('prescription') prescription: string,
+  // ): Promise<{ message: string }> {
+  //   return {
+  //     message: await this.appService.encryptPrescription(
+  //       base64UrlKey,
+  //       prescription,
+  //     ),
+  //   };
+  // }
+
+  @Get('verify/:key/:prescription')
+  async verifyCrypto(
+    @Param('key') base64UrlKey: string,
+    @Param('prescription') prescription: string,
+  ): Promise<{ message: string }> {
+    return {
+      message: await this.appService.validatePrescription(
+        base64UrlKey,
+        prescription,
+      ),
+    };
   }
 }
