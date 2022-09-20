@@ -101,7 +101,7 @@ export class AppService {
     const { privateKey, publicKey } = generateKeyPairSync('rsa', rsaParams);
     return new KeyPairObjectDto(privateKey.toString(), publicKey.toString());
   }
-  
+
   encryptPrescription(
     base64UrlPublicKey: string,
     prescription: string,
