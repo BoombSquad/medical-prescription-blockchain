@@ -9,6 +9,7 @@ import { Prescription } from './model/Prescription';
 
 import { CreatePresciptionDto } from './model/dto/createPrescriptionDto';
 import { KeyPairObjectDto } from './model/dto/KeyPairObjectDto';
+import { publicEncrypt } from 'crypto';
 
 @Injectable()
 export class AppService {
@@ -99,5 +100,15 @@ export class AppService {
     };
     const { privateKey, publicKey } = generateKeyPairSync('rsa', rsaParams);
     return new KeyPairObjectDto(privateKey.toString(), publicKey.toString());
+  }
+  
+  encryptPrescription(
+    base64UrlPublicKey: string,
+    prescription: string,
+  ): string {
+    const clientKey = base64url.decode(base64UrlPublicKey, 'utf8');
+    const plaintext = Buffer.from(prescription, 'utf8');
+    const encryptedPrescription = publicEncrypt(clientKey, plaintext);
+    return encryptedPrescription.toString('hex');
   }
 }

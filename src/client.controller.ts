@@ -33,18 +33,18 @@ export class ClientController {
     return this.appService.listUserPrescriptions(base64UrlKey);
   }
 
-  // @Get('sign/:key/:prescription')
-  // async signPrescription(
-  //   @Param('key') base64UrlKey: string,
-  //   @Param('prescription') prescription: string,
-  // ): Promise<{ message: string }> {
-  //   return {
-  //     message: await this.appService.encryptPrescription(
-  //       base64UrlKey,
-  //       prescription,
-  //     ),
-  //   };
-  // }
+  @Get('sign/:key/:prescription')
+  async signPrescription(
+    @Param('key') base64UrlKey: string,
+    @Param('prescription') prescription: string,
+  ): Promise<{ message: string }> {
+    return {
+      message: await this.appService.encryptPrescription(
+        base64UrlKey,
+        prescription,
+      ),
+    };
+  }
 
   @Get('verify/:key/:prescription')
   async verifyCrypto(
