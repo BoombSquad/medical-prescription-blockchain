@@ -55,12 +55,7 @@ export class AppService {
     if (this.blockChain.getPendingChainLenth() <= 0) {
       return 'there is no block to mine';
     }
-    return (
-      'Miner: ' +
-      id +
-      ' mined a ' +
-      this.blockChain.mineAllPendingPrescriptions()
-    );
+    return id + ' mined a ' + this.blockChain.mineAllPendingPrescriptions();
   }
 
   mineBlock(id: string): string {
@@ -88,7 +83,7 @@ export class AppService {
 
   generateClientKey(): KeyPairObjectDto {
     const rsaParams = {
-      modulusLength: 2048,
+      modulusLength: 4096,
       publicKeyEncoding: {
         type: 'spki',
         format: 'pem',
