@@ -13,13 +13,13 @@ export class AppController {
     return { status: 'App UP' };
   }
 
-  @Get('getChain')
+  @Get('getChain/:appKey')
   async getChain(@Param('appKey') appkey: string): Promise<{ lenth: number }> {
     checkAppKey(appkey);
     return { lenth: this.appService.getLenth() };
   }
 
-  @Get('getFullChain')
+  @Get('getFullChain/:appKey')
   async getFullChain(
     @Param('appKey') appkey: string,
   ): Promise<{ chain: Block[] }> {
@@ -27,7 +27,7 @@ export class AppController {
     return { chain: this.appService.getChain() };
   }
 
-  @Get('list/block/pending')
+  @Get('list/block/pending/:appKey')
   async listPendingBlocks(
     @Param('appKey') appkey: string,
   ): Promise<{ prescriptions: Prescription[] }> {
