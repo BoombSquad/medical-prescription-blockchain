@@ -58,7 +58,7 @@ export class BlockChain {
       block.mineBlock(this.difficulty);
       // console.log(block.getHash());
       this.chain.push(block);
-      this.difficulty++;
+      // this.difficulty++;
     }
 
     // console.log('All Prescriptions validated' + '\n');
