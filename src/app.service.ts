@@ -48,6 +48,15 @@ export class AppService {
 
     return this.blockChain.createPrescription(prescription);
   }
+  encryptPrescription(
+    base64UrlPublicKey: string,
+    prescription: string,
+  ): string {
+    const clientKey = base64url.decode(base64UrlPublicKey, 'utf8');
+    const plaintext = Buffer.from(prescription, 'utf8');
+    const encryptedPrescription = publicEncrypt(clientKey, plaintext);
+    return encryptedPrescription.toString('hex');
+  }
 
   //TO MINER
 
@@ -95,15 +104,5 @@ export class AppService {
     };
     const { privateKey, publicKey } = generateKeyPairSync('rsa', rsaParams);
     return new KeyPairObjectDto(privateKey.toString(), publicKey.toString());
-  }
-
-  encryptPrescription(
-    base64UrlPublicKey: string,
-    prescription: string,
-  ): string {
-    const clientKey = base64url.decode(base64UrlPublicKey, 'utf8');
-    const plaintext = Buffer.from(prescription, 'utf8');
-    const encryptedPrescription = publicEncrypt(clientKey, plaintext);
-    return encryptedPrescription.toString('hex');
   }
 }
