@@ -1,4 +1,4 @@
-import { Controller, Get, Header, Param } from '@nestjs/common';
+import { Controller, Get, Header, Param, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Block } from './model/Block';
 import { Prescription } from './model/Prescription';
@@ -7,29 +7,29 @@ import { Prescription } from './model/Prescription';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get(':appKey')
-  async getHello(@Param('appKey') appkey: string): Promise<{ status: string }> {
+  @Get()
+  async getHello(@Query('appKey') appkey: string): Promise<{ status: string }> {
     checkAppKey(appkey);
     return { status: 'App UP' };
   }
 
-  @Get('getChain/:appKey')
-  async getChain(@Param('appKey') appkey: string): Promise<{ lenth: number }> {
+  @Get('getChain')
+  async getChain(@Query('appKey') appkey: string): Promise<{ lenth: number }> {
     checkAppKey(appkey);
     return { lenth: this.appService.getLenth() };
   }
 
-  @Get('getFullChain/:appKey')
+  @Get('getFullChain')
   async getFullChain(
-    @Param('appKey') appkey: string,
+    @Query('appKey') appkey: string,
   ): Promise<{ chain: Block[] }> {
     checkAppKey(appkey);
     return { chain: this.appService.getChain() };
   }
 
-  @Get('list/block/pending/:appKey')
+  @Get('list/block/pending')
   async listPendingBlocks(
-    @Param('appKey') appkey: string,
+    @Query('appKey') appkey: string,
   ): Promise<{ prescriptions: Prescription[] }> {
     checkAppKey(appkey);
     return {

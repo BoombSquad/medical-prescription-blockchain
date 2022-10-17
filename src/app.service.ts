@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import base64url from 'base64url';
-import { generateKeyPairSync, privateDecrypt } from 'crypto';
+import { generateKeyPairSync, privateDecrypt, publicEncrypt } from 'crypto';
 
 import { Block } from './model/Block';
 import { BlockChain } from './model/Blockchain';
@@ -9,7 +9,6 @@ import { Prescription } from './model/Prescription';
 
 import { CreatePresciptionDto } from './model/dto/createPrescriptionDto';
 import { KeyPairObjectDto } from './model/dto/KeyPairObjectDto';
-import { publicEncrypt } from 'crypto';
 
 @Injectable()
 export class AppService {
@@ -32,7 +31,7 @@ export class AppService {
     validationMessage.push(this.blockChain.isChainValid());
     // console.log(validationMessage);
     if (validationMessage[0] != 'valid') {
-      return [{ message: 'Block isnt valid' }];
+      return [{ message: 'Blockchain is corrupted' }];
     } else {
       return this.blockChain.getUserPrescriptions(clientBase64Key);
     }

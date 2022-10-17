@@ -15,8 +15,17 @@ export class Prescription {
     this.doctorPublicKey = doctorPublicKey;
     this.patiencePublicKey = patiencePublicKey;
     this.prescriptionData = prescriptionData;
-    this.creationDate = new Date();
+    this.creationDate = this.getBrazilDateNow();
     this.expirationDate = expirationDate;
+  }
+
+  private getBrazilDateNow(): Date {
+    const dateNow = new Date();
+    let hourNow = dateNow.getHours();
+    hourNow -= 3;
+    dateNow.setHours(hourNow);
+    console.log(dateNow);
+    return dateNow;
   }
 
   verifyClientKey(patienceKey: string): boolean {
@@ -31,7 +40,8 @@ export class Prescription {
   }
 
   verifyPrescriptionExpiration() {
-    if (new Date() > this.expirationDate) {
+    const dateNow = this.getBrazilDateNow();
+    if (dateNow > this.expirationDate) {
       return false;
     } else return true;
   }

@@ -73,7 +73,7 @@ export class BlockChain {
     const lastPrescription = this.pendingPrescription.pop();
     if (lastPrescription != undefined) {
       const block = new Block(
-        Date.now().toString(),
+        this.getNowDate(),
         lastPrescription,
         this.getLastBlock().getHash(),
       );
@@ -86,6 +86,15 @@ export class BlockChain {
       return block.getHash();
     }
     return 'there are no blocks to mine';
+  }
+
+  private getNowDate(): string {
+    const dateNow = new Date();
+    let hourNow = dateNow.getHours();
+    hourNow -= 3;
+    dateNow.setHours(hourNow);
+    console.log(dateNow);
+    return dateNow.toString();
   }
 
   getUserPrescriptions(clientKey: string): object[] {
