@@ -1,18 +1,18 @@
 import base64url from 'base64url';
 import { publicEncrypt } from 'crypto';
+import { writeFileSync } from 'fs';
+import { join } from 'path';
 import { Block } from './Block';
 import { Prescription } from './Prescription';
 
 export class BlockChain {
   private chain: Block[];
   private pendingPrescription: Prescription[];
-  private reward: string;
   private difficulty: number;
 
   constructor() {
     this.chain = [this.createGenesisBlock()];
     this.pendingPrescription = [];
-    this.reward = ''; //Add some type of reward
     this.difficulty = 1;
   }
 
@@ -45,28 +45,26 @@ export class BlockChain {
     return 'success';
   }
 
-  //Can recieve rewards
-  mineAllPendingPrescriptions(): string {
+  mineAllPendingPrescriptions(): string[] {
     let i = 0;
-    for (i; i < this.pendingPrescription.length; i++) {
+    const queueLengh = this.pendingPrescription.length;
+    const hashArray: string[] = [];
+    for (i; i < queueLengh; i++) {
       const block = new Block(
         Date.now().toString(),
         this.pendingPrescription[i],
         this.getLastBlock().getHash(),
       );
-      // console.log(this.difficulty);
       block.mineBlock(this.difficulty);
-      // console.log(block.getHash());
       this.chain.push(block);
-      // this.difficulty++;
+      writeDownBlock(block.blockString());
+      hashArray.push(block.getHash());
     }
+    this.pendingPrescription = [];
 
-    // console.log('All Prescriptions validated' + '\n');
+    //can be implemented to add reward transaction;
 
-    this.pendingPrescription = [
-      //can add reward transaction;
-    ];
-    return 'total of ' + i + ' Blocks';
+    return hashArray;
   }
 
   mineLastPendingPrescription(): string {
@@ -79,9 +77,8 @@ export class BlockChain {
       );
       block.mineBlock(this.difficulty);
       this.chain.push(block);
-      this.difficulty++;
-
-      // console.log('Prescription validated' + '\n');
+      writeDownBlock(block.blockString());
+      // this.difficulty++; // INCREASES DIFFICULT WHEN BLOCKS ARE ADDED
 
       return block.getHash();
     }
@@ -93,7 +90,6 @@ export class BlockChain {
     let hourNow = dateNow.getHours();
     hourNow -= 3;
     dateNow.setHours(hourNow);
-    console.log(dateNow);
     return dateNow.toString();
   }
 
@@ -125,8 +121,6 @@ export class BlockChain {
     for (let i = 1; i < this.chain.length; i++) {
       const currentBlock = this.chain[i];
       const previousBlock = this.chain[i - 1];
-      // console.log(currentBlock.getHash());
-      // console.log(currentBlock.caculateHash());
       if (currentBlock.getHash() !== currentBlock.caculateHash()) {
         return (
           '\n Invalid hash: ' +
@@ -159,4 +153,9 @@ function encryptPrescription(
   const plaintext = Buffer.from(prescription, 'utf8');
   const encryptedPrescription = publicEncrypt(clientKey, plaintext);
   return encryptedPrescription.toString('hex');
+}
+function writeDownBlock(jsonBlock: string) {
+  writeFileSync(join('', 'chainAudit.txt'), jsonBlock + ';', {
+    flag: 'a+',
+  });
 }

@@ -30,10 +30,18 @@ export class Block {
   mineBlock(difficulty: number) {
     while (this.hash.substring(0, difficulty) !== Array(difficulty + 1).join('0')) {
       this.nonce++;
-      // console.log("Mining block...: " + this.hash) //For understanding the calculation
       this.hash = this.caculateHash();
     }
-    // console.log('Block mined: ' +this.hash +'\n' +'With nonce of : ' +this.nonce +'\n');
+  }
+
+  blockString(){
+    const blockData = `
+      timeStamp: ${this.timeStamp},
+      prescriptions: {${this.prescriptions.toSting()}},
+      previouHash: ${this.previousHash},
+      hash: ${this.hash},
+      nonce: ${this.nonce},`
+    return blockData
   }
 
   public getPreviousHash(): string{

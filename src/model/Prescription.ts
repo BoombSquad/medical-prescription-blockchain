@@ -24,7 +24,6 @@ export class Prescription {
     let hourNow = dateNow.getHours();
     hourNow -= 3;
     dateNow.setHours(hourNow);
-    console.log(dateNow);
     return dateNow;
   }
 
@@ -44,5 +43,14 @@ export class Prescription {
     if (dateNow > this.expirationDate) {
       return false;
     } else return true;
+  }
+
+  toSting() {
+    return `
+      \tdoctorPublicKey: ${this.doctorPublicKey},
+      \tpatiencePublicKey: ${this.patiencePublicKey},
+      \tprescriptionData: ${this.prescriptionData},
+      \texpirationDate: ${this.expirationDate},
+      `;
   }
 }

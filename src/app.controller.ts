@@ -36,6 +36,20 @@ export class AppController {
       prescriptions: this.appService.ListToMine(),
     };
   }
+  @Get('audit')
+  retrieveHashAuditFile(@Query('appKey') appkey: string): { audit: string } {
+    checkAppKey(appkey);
+    return {
+      audit: this.appService.auditHashFile(),
+    };
+  }
+  @Get('chainaudit')
+  retrieveChainAuditFile(@Query('appKey') appkey: string): { audit: string } {
+    checkAppKey(appkey);
+    return {
+      audit: this.appService.auditChainFile(),
+    };
+  }
 }
 function checkAppKey(appkey: string) {
   if (appkey == 'asiojbndikjbvkjnsihdsihsfvbjshbcmns') return;
