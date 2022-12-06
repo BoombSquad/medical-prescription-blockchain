@@ -37,7 +37,6 @@ export class AppService {
   listUserPrescriptions(clientBase64Key: string): object[] {
     const validationMessage: string[] = [];
     validationMessage.push(this.blockChain.isChainValid());
-    // console.log(validationMessage);
     if (validationMessage[0] != 'valid') {
       return [{ message: 'Blockchain is corrupted' }];
     } else {
